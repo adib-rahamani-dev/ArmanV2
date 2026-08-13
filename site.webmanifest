@@ -1,0 +1,14 @@
+{
+  "name": "REDT | گروه قرمز",
+  "short_name": "REDT",
+  "description": "آژانس برندینگ، طراحی سایت و تولید محتوای REDT",
+  "lang": "fa-IR",
+  "dir": "rtl",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ed111c",
+  "icons": [
+    {"src": "assets/icons/logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ]
+}

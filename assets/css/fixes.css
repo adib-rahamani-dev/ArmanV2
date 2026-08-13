@@ -1,0 +1,12 @@
+.mobile-menu{display:none}
+.hp{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;clip-path:inset(50%);overflow:hidden;left:auto!important}
+@media(max-width:1050px){.mobile-menu{display:block;height:100svh;overflow:auto;visibility:hidden;opacity:0}.mobile-menu.open{visibility:visible;opacity:1}}
+.process__rail,.tool-filters,.service-grid,.comment-marquee{scrollbar-width:none}
+.process__rail::-webkit-scrollbar,.tool-filters::-webkit-scrollbar,.service-grid::-webkit-scrollbar,.comment-marquee::-webkit-scrollbar{display:none}
+.campaign-banner__copy{margin-left:auto!important;margin-right:0!important}
+#legacy-main{display:none!important}
+@media(max-width:1050px){.menu-toggle span{display:block;width:16px;height:1px;background:var(--text);margin:4px auto;transition:.2s}}
+.selected-work .work-card:nth-child(1){background-image:url('../images/case-studies/fintech-v2.webp')!important}
+.selected-work .work-card:nth-child(2){background-image:url('../images/case-studies/architecture-v2.webp')!important}
+.selected-work .work-card:nth-child(3){background-image:url('../images/case-studies/coffee-v2.webp')!important}
+.breadcrumbs{margin-bottom:28px}.breadcrumbs ol{display:flex;align-items:center;gap:10px;list-style:none;padding:0;margin:0;font-size:12px;color:var(--muted)}.breadcrumbs li+li:before{content:"/";margin-left:10px;opacity:.45}.breadcrumbs a{color:inherit}.breadcrumbs a:hover{color:var(--red)}
