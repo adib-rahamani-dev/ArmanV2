@@ -4,6 +4,7 @@ declare(strict_types=1);
 return [
     'home' => ['path' => '', 'title' => 'آژانس برندینگ و طراحی سایت REDT | گروه قرمز', 'description' => SITE_DESCRIPTION, 'indexable' => true, 'priority' => '1.0', 'changefreq' => 'weekly'],
     'products' => ['path' => 'page.php?type=products', 'title' => 'محصولات دیجیتال REDT | گروه قرمز', 'description' => 'محصولات و ابزارهای دیجیتال REDT برای ساخت برند، طراحی تجربه و توسعه کسب‌وکار.', 'indexable' => false],
+    'ads' => ['path' => 'page.php?type=ads', 'title' => 'سفارش تبلیغات و رزرو رسانه | REDT', 'description' => 'مدیریت تبلیغات اینستاگرام، تلگرام و اینفلوئنسر مارکتینگ؛ از انتخاب رسانه تا انتشار و گزارش شفاف.', 'indexable' => true, 'priority' => '0.8', 'changefreq' => 'weekly'],
     'about' => ['path' => 'page.php?type=about', 'title' => 'درباره گروه قرمز | REDT', 'description' => 'با تیم، رویکرد و فرایند کاری REDT در برندینگ، طراحی سایت و تولید محتوای حرفه‌ای آشنا شوید.', 'indexable' => false],
     'blog' => ['path' => 'page.php?type=blog', 'title' => 'مجله برندینگ و طراحی REDT', 'description' => 'مقاله‌ها و راهنماهای کاربردی درباره برندینگ، طراحی تجربه کاربری، تولید محتوا و رشد دیجیتال.', 'indexable' => false],
     'team' => ['path' => 'page.php?type=team', 'title' => 'تیم REDT | گروه قرمز', 'description' => 'آشنایی با متخصصان استراتژی، طراحی، توسعه و تولید محتوای گروه قرمز.', 'indexable' => false],

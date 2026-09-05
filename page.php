@@ -1,64 +1,71 @@
 <?php
 declare(strict_types=1);
-
-require __DIR__ . '/config/config.php';
-$site = require __DIR__ . '/data/site.php';
-$routes = require __DIR__ . '/data/routes.php';
-$labels = [
-    'products' => 'محصولات دیجیتال',
-    'about' => 'درباره گروه قرمز',
-    'blog' => 'مجله REDT',
-    'team' => 'تیم ما',
-    'privacy' => 'قوانین و حریم خصوصی',
-    'courses' => 'دوره‌های آموزشی',
-    'course' => 'جزئیات دوره',
-    'service' => 'جزئیات خدمت',
-    'project' => 'مطالعه موردی پروژه',
+require __DIR__.'/config/config.php';
+$site=require __DIR__.'/data/site.php'; $catalog=require __DIR__.'/data/catalog.php';
+$type=is_scalar($_GET['type']??null)?trim((string)$_GET['type']):''; $id=is_scalar($_GET['id']??null)?trim((string)$_GET['id']):'';
+$surfaceRedirects=[
+ 'products'=>surface_url('digital').'#catalog','accounts'=>surface_url('digital').'#catalog','courses'=>surface_url('digital').'#catalog',
+ 'product'=>surface_url('digital').'#catalog','course'=>surface_url('digital').'#catalog','compare'=>surface_url('digital').'#catalog',
+ 'ads'=>surface_url('studio').'#services','portfolio'=>surface_url('studio').'#work','project'=>surface_url('studio').'#work',
+ 'about'=>surface_url('studio'),'service'=>surface_url('studio').'#services',
 ];
-$type = is_scalar($_GET['type'] ?? null) ? trim((string) $_GET['type']) : '';
-$isKnown = isset($labels[$type], $routes[$type]);
-$title = $isKnown ? $labels[$type] : 'صفحه یافت نشد';
-
-if (!$isKnown) {
-    http_response_code(404);
-}
-
-$route = $isKnown ? $routes[$type] : [
-    'title' => 'صفحه یافت نشد | REDT',
-    'description' => 'صفحه‌ای که به دنبال آن بودید پیدا نشد.',
+if(isset($surfaceRedirects[$type])){header('Location: '.$surfaceRedirects[$type],true,302);exit;}
+$meta=[
+ 'products'=>['فروشگاه REDT','محصولات دیجیتال و اکانت‌های حرفه‌ای؛ یک‌جا، قابل جست‌وجو و با پشتیبانی واقعی.'],
+ 'accounts'=>['خرید اکانت اورجینال','اکانت‌های معتبر با تحویل سریع و پشتیبانی واقعی.'],
+ 'ads'=>['تبلیغات و رسانه','از انتخاب رسانه تا مذاکره، انتشار و گزارش؛ یک مسیر شفاف و مدیریت‌شده.'],
+ 'courses'=>['آکادمی REDT','مهارتی یاد بگیرید که فردای پروژه قابل استفاده باشد.'],
+ 'blog'=>['مجله REDT','ایده‌ها، تجربه‌ها و راهنماهای عملی برای برندهای رو به رشد.'],
+ 'about'=>['ما گروه قرمزیم.','ترکیبی از فکر، طراحی و اجرا برای ساخت تجربه‌هایی که به حرکت درمی‌آیند.'],
+ 'portfolio'=>['کارهایی که حرف می‌زنند.','مسئله، فرایند و نتیجه؛ نه فقط چند تصویر زیبا.'],
+ 'project'=>['مطالعه موردی پروژه','از مسئله و تصمیم‌های طراحی تا نتیجه‌ای که قابل اندازه‌گیری است.'],
+ 'compare'=>['انتخاب را ساده کرده‌ایم.','پکیج‌ها را شفاف کنار هم ببینید و متناسب با مرحله رشدتان انتخاب کنید.'],
+ 'product'=>['جزئیات محصول','همه‌چیز برای یک انتخاب مطمئن و شفاف.'],
+ 'course'=>['جزئیات دوره','مسیر یادگیری، سرفصل‌ها و آنچه در پایان خواهید ساخت.'],
+ 'article'=>['مقاله منتخب','مطالعه‌ای کاربردی از تیم REDT.'],
+ 'privacy'=>['حریم خصوصی و امنیت','شفافیت در نگهداری اطلاعات و حقوق کاربران.'],
 ];
-$seo = [
-    'title' => $route['title'],
-    'description' => $route['description'],
-    // These are scaffold pages. Switch to index,follow only after their real,
-    // unique content is published and add the route to the sitemap.
-    'robots' => 'noindex,follow',
-    'breadcrumbs' => [
-        ['name' => 'خانه', 'url' => ''],
-        ['name' => $title, 'url' => $isKnown ? $routes[$type]['path'] : '404.php'],
-    ],
-];
-
-require __DIR__ . '/includes/header.php';
+if(!isset($meta[$type])){$type='404';http_response_code(404);$meta[$type]=['این مسیر پیدا نشد.','ممکن است صفحه جابه‌جا شده باشد.'];}
+$all=array_merge($catalog['products'],$catalog['accounts'],$catalog['courses'],$catalog['ads']); $item=null; foreach($all as $candidate){if($candidate['id']===$id){$item=$candidate;break;}}
+if(in_array($type,['product','course'],true)&&$item){$meta[$type]=[$item['title'],$item['desc']];}
+$seo=['title'=>$meta[$type][0].' | REDT','description'=>$meta[$type][1],'robots'=>$type==='404'?'noindex,follow':'index,follow'];
+require __DIR__.'/includes/header.php';
+function shop_cards(array $items,string $detailType):void{foreach($items as $p){$active=$p['active']??true;?>
+<article class="market-card <?=$active?'is-active':'is-inactive'?>" data-product-id="<?=e($p['id'])?>" data-title="<?=e($p['title'])?>" data-price="<?=e($p['price'])?>" data-category="<?=e($p['category']??$p['kind'])?>" data-search="<?=e($p['title'].' '.$p['kind'].' '.($p['category']??'').' '.$p['desc'])?>"><a class="market-art art-<?=e($p['art'])?>" href="<?=$active?url('page.php?type='.$detailType.'&id='.$p['id']):'#'?>"><span><?=e($p['badge'])?></span><b><?=strtoupper(substr($p['id'],0,2))?></b><i></i><?php if(!$active):?><em>فعلاً غیرفعال</em><?php endif;?></a><div class="market-copy"><small><?=e($p['kind'])?> · <?=e($p['category']??'عمومی')?> · <?=$active?'فعال':'غیرفعال'?></small><h2><a href="<?=$active?url('page.php?type='.$detailType.'&id='.$p['id']):'#'?>"><?=e($p['title'])?></a></h2><p><?=e($p['desc'])?></p><?php if($active):?><label class="compare-check"><input type="checkbox" data-compare><i></i> افزودن به مقایسه</label><?php endif;?><footer><strong><?=$active?e($p['price']).' <small>تومان</small>':'غیرقابل خرید'?></strong><a class="circle-link" href="<?=$active?url('page.php?type='.$detailType.'&id='.$p['id']):'#'?>" aria-label="مشاهده"><?=$active?'←':'×'?></a></footer></div></article><?php }}
 ?>
-<main id="main" class="inner-page">
-    <section class="inner-hero">
-        <div class="container">
-            <nav class="breadcrumbs" aria-label="مسیر صفحه">
-                <ol>
-                    <li><a href="<?= url() ?>">خانه</a></li>
-                    <li aria-current="page"><?= e($title) ?></li>
-                </ol>
-            </nav>
-            <span class="eyebrow">REDT / <?= e($title) ?></span>
-            <h1><?= e($title) ?></h1>
-            <?php if ($isKnown): ?>
-                <p>ساختار فنی این صفحه آماده است و پس از انتشار محتوای کامل، عنوان، توضیحات، داده‌های ساختاریافته و آدرس آن به‌صورت اختصاصی در نتایج جست‌وجو ارائه می‌شود.</p>
-            <?php else: ?>
-                <p>این آدرس وجود ندارد یا جابه‌جا شده است. از صفحه اصلی مسیر درست را پیدا کنید.</p>
-            <?php endif; ?>
-            <a class="btn btn--primary" href="<?= url() ?>">بازگشت به خانه ←</a>
-        </div>
-    </section>
-</main>
-<?php require __DIR__ . '/includes/footer.php'; ?>
+<main id="main" class="market-page">
+ <section class="market-hero"><div class="container"><nav class="breadcrumbs"><ol><li><a href="<?=url()?>">خانه</a></li><li><?=e($meta[$type][0])?></li></ol></nav><span class="market-index">REDT / <?=strtoupper(e($type))?></span><h1><?=e($meta[$type][0])?></h1><p><?=e($meta[$type][1])?></p><div class="hero-orbit" aria-hidden="true"><i></i><b>R</b></div></div></section>
+ <?php if(in_array($type,['products','accounts','courses','ads'],true)): $items=$type==='products'?array_merge($catalog['products'],$catalog['accounts'],$catalog['ads']):$catalog[$type]; ?>
+ <nav class="store-category-nav" aria-label="دسته‌های فروشگاه"><div class="container"><a class="<?=$type==='products'?'active':''?>" href="<?=url('page.php?type=products')?>"><b>همه فروشگاه</b><span>محصول، اکانت و تبلیغات</span></a><a class="<?=$type==='accounts'?'active':''?>" href="<?=url('page.php?type=accounts')?>"><b>اکانت‌ها</b><span>اشتراک ابزارهای بین‌المللی</span></a><a class="<?=$type==='ads'?'active':''?>" href="<?=url('page.php?type=ads')?>"><b>تبلیغات</b><span>کمپین و رزرو رسانه</span></a><a class="<?=$type==='courses'?'active':''?>" href="<?=url('page.php?type=courses')?>"><b>آموزش</b><span>دوره‌های پروژه‌محور</span></a></div></nav>
+ <section class="market-section"><div class="container"><div class="store-search"><span>⌕</span><input type="search" data-store-search placeholder="جست‌وجوی محصول، اکانت یا ابزار..." aria-label="جستجو در فروشگاه"><kbd>برای مثال: Adobe</kbd></div><div class="market-toolbar"><div class="market-tabs"><button class="active" data-filter="all">همه</button><button data-filter="active">موجود و فعال</button><button data-filter="inactive">به‌زودی</button></div><label>مرتب‌سازی <select><option>پیشنهاد REDT</option><option>کمترین قیمت</option><option>بیشترین قیمت</option></select></label></div><div class="market-grid"><?php shop_cards($items,$type==='courses'?'course':'product'); ?></div><div class="search-empty" hidden><b>نتیجه‌ای پیدا نشد</b><span>عبارت دیگری را امتحان کنید.</span></div></div></section>
+ <section class="confidence"><div class="container"><div><b>✓</b><span><strong>درخواست امن</strong><small>بدون دریافت رمز حساب</small></span></div><div><b>↯</b><span><strong>تحویل سریع</strong><small>زمان تحویل شفاف پیش از پرداخت</small></span></div><div><b>◌</b><span><strong>پشتیبانی واقعی</strong><small>پاسخ‌گویی توسط تیم REDT</small></span></div><div><b>↻</b><span><strong>ضمانت کیفیت</strong><small>شرایط روشن برای هر سفارش</small></span></div></div></section>
+ <?php elseif(in_array($type,['product','course'],true)): if(!$item){http_response_code(404);} ?>
+ <section class="product-detail"><div class="container product-layout"><div class="product-showcase art-<?=e($item['art']??'ui')?>"><span><?=e($item['badge']??'ناموجود')?></span><b><?=e($item['title']??'محصول پیدا نشد')?></b><i></i></div><div class="product-info"><small><?=e($item['kind']??'REDT')?> / <?=e($item['category']??'محصول')?></small><h2><?=e($item['title']??'محصول پیدا نشد')?></h2><p><?=e($item['desc']??'این مورد در کاتالوگ فعلی وجود ندارد.')?></p><div class="rating">★★★★★ <span>۴.۹ · ۲۸ نظر تأییدشده</span></div><?php if(!empty($item['plans'])):?><div class="plan-picker"><span>مدت یا پلن را انتخاب کنید</span><?php foreach($item['plans'] as $i=>$plan):?><label><input type="radio" name="plan" value="<?=e($plan[0])?>" data-plan-price="<?=e($plan[1])?>" <?=$i===0?'checked':''?>><b><?=e($plan[0])?></b><small><?=e($plan[1])?> تومان</small></label><?php endforeach;?></div><?php endif;?><ul><?php foreach(($item['features']??['دسترسی سریع','پشتیبانی تخصصی','ضمانت کیفیت','به‌روزرسانی']) as $feature):?><li><?=e($feature)?></li><?php endforeach;?></ul><div class="delivery-facts"><div><span>⌁</span><p><b>نحوه تحویل</b><small><?=e($item['delivery']??'تحویل فوری')?></small></p></div><div><span>✓</span><p><b>ضمانت</b><small><?=e($item['warranty']??'ضمانت کیفیت REDT')?></small></p></div></div><div class="buy-box"><div><small>شروع قیمت</small><strong data-product-price><?=e($item['price']??'—')?> تومان</strong></div><button type="button" data-buy>ثبت درخواست خرید ←</button></div><p class="safe-note">بدون پرداخت اولیه · بررسی سفارش توسط کارشناس · پرداخت پس از تأیید موجودی و قیمت</p></div></div></section>
+ <section class="market-section muted"><div class="container"><div class="market-heading"><span>جزئیات شفاف</span><h2><?= $type==='course'?'در این دوره چه می‌سازید؟':'داخل این محصول چیست؟' ?></h2></div><div class="feature-list"><article><b>۰۱</b><h3>ساختار حرفه‌ای</h3><p>بر اساس تجربه پروژه‌های واقعی، نه محتوای تئوری و پراکنده.</p></article><article><b>۰۲</b><h3>اجرای قدم‌به‌قدم</h3><p>مسیر روشن و مستند تا بتوانید بدون سردرگمی جلو بروید.</p></article><article><b>۰۳</b><h3>همراهی REDT</h3><p>برای استفاده درست از محصول یا دوره کنار شما هستیم.</p></article></div></div></section>
+ <?php if($type==='course' && $item): ?><section class="course-detail-story"><div class="container course-detail-grid"><div><span class="market-index">COURSE / INTRODUCTION</span><h2>قبل از ثبت‌نام، مسیر دوره را کامل ببینید.</h2><p>این دوره یک صفحه فروش کوتاه نیست؛ اینجا می‌توانید نتیجه نهایی، سرفصل‌ها، شیوه آموزش و پیش‌نیازها را ببینید و بعد تصمیم بگیرید.</p><div class="course-syllabus"><div><b>شناخت مسئله و ساخت نقشه راه</b><span>فصل اول · ۴ درس</span></div><div><b>اصول، ابزارها و اجرای حرفه‌ای</b><span>فصل دوم · ۸ درس</span></div><div><b>پروژه واقعی قدم‌به‌قدم</b><span>فصل سوم · ۱۰ درس</span></div><div><b>ارائه، بازخورد و تحویل نهایی</b><span>فصل چهارم · ۵ درس</span></div></div></div><aside class="course-mentor"><span>مدرس و پشتیبانی</span><h3>همراهی تا خروجی واقعی</h3><p>تمرین‌ها بر اساس پروژه واقعی طراحی شده‌اند و مسیر شما فقط به تماشای ویدیو ختم نمی‌شود.</p><ul><li>دسترسی همیشگی به محتوا</li><li>فایل‌های تمرین و پروژه</li><li>پشتیبانی و رفع اشکال</li><li>به‌روزرسانی رایگان دوره</li></ul></aside></div></section><?php endif; ?>
+ <?php elseif($type==='blog'): ?>
+ <section class="market-section"><div class="container"><div class="store-search"><span>⌕</span><input type="search" data-article-search placeholder="جست‌وجو در مقاله‌ها و موضوعات..." aria-label="جستجو در مقالات"><kbd>برند، طراحی، رشد</kbd></div><div class="article-grid"><?php foreach($catalog['articles'] as $i=>$a): ?><article class="article-card <?= $i===0?'featured':'' ?>" data-search="<?=e($a['title'].' '.$a['category'])?>"><a class="article-art art-<?=e($a['art'])?>" href="<?=url('page.php?type=article&id='.$a['id'])?>"><b><?=sprintf('%02d',$i+1)?></b><i></i></a><div><small><?=e($a['category'])?> · <?=e($a['time'])?></small><h2><a href="<?=url('page.php?type=article&id='.$a['id'])?>"><?=e($a['title'])?></a></h2><p>نگاهی دقیق و کاربردی برای تصمیم‌های بهتر در مسیر ساخت و رشد یک برند.</p><a href="<?=url('page.php?type=article&id='.$a['id'])?>">ادامه مطالعه ←</a></div></article><?php endforeach; ?></div><div class="article-empty search-empty" hidden><b>مقاله‌ای پیدا نشد</b><span>موضوع دیگری را جست‌وجو کنید.</span></div></div></section>
+ <?php elseif($type==='article'): $article=$catalog['articles'][0];foreach($catalog['articles'] as $a){if($a['id']===$id)$article=$a;} ?>
+ <article class="reading"><div class="container reading-layout"><aside><span>در این مقاله</span><a href="#start">شروع مسئله</a><a href="#system">ساخت سیستم</a><a href="#action">قدم بعدی</a></aside><div><small><?=e($article['category'])?> · <?=e($article['time'])?> مطالعه</small><h2><?=e($article['title'])?></h2><p class="lead" id="start">برندهایی که در ذهن می‌مانند، مجموعه‌ای از تصمیم‌های هماهنگ‌اند؛ از لحن و تصویر تا تجربه‌ای که در هر تماس ساخته می‌شود.</p><blockquote>یک برند خوب پیش از آنکه زیبا باشد، واضح و قابل تشخیص است.</blockquote><h3 id="system">از اجزای جدا به یک سیستم زنده</h3><p>لوگو، رنگ، تایپوگرافی، محتوا و محصول باید یک داستان واحد را تعریف کنند. سیستم طراحی کمک می‌کند این داستان با رشد تیم از هم نپاشد.</p><p>قدم اول تعریف اصولی است که تصمیم‌های بعدی را هدایت می‌کنند؛ سپس هر دارایی بصری یا متنی باید با آن اصول سنجیده شود.</p><h3 id="action">از همین امروز چه کنیم؟</h3><p>تمام نقاط تماس برند را فهرست کنید، ناهماهنگی‌ها را پیدا کنید و سه اصل غیرقابل‌مذاکره برای تجربه برند بنویسید.</p></div></div></article>
+ <?php elseif($type==='about'): ?>
+ <section class="about-story"><div class="container"><div class="manifesto-copy"><span>داستان ما</span><h2>ما برای پر کردن فضا طراحی نمی‌کنیم؛<br><em>برای تغییر ساختیم.</em></h2><p>REDT از یک باور ساده شروع شد: فکر خوب وقتی ارزشمند است که به اجرای دقیق برسد. ما استراتژیست، طراح، توسعه‌دهنده و روایت‌گریم که زیر یک سقف مسئله را می‌فهمیم و یکپارچه حل می‌کنیم.</p></div><div class="about-stats"><div><strong>+۱۲۰</strong><span>پروژه تحویل‌شده</span></div><div><strong>۹۶٪</strong><span>رضایت همکاری</span></div><div><strong>۸ سال</strong><span>تجربه ترکیبی تیم</span></div></div></div></section><section class="market-section"><div class="container"><div class="market-heading"><span>شیوه فکر کردن ما</span><h2>سه اصل، در تمام کارها.</h2></div><div class="belief-grid"><article><b>۱</b><h3>اول مسئله</h3><p>قبل از هر پیکسل، کسب‌وکار و مخاطب را می‌فهمیم.</p></article><article><b>۲</b><h3>یکپارچگی</h3><p>استراتژی، طراحی و تکنولوژی باید یک تجربه بسازند.</p></article><article><b>۳</b><h3>نتیجه قابل سنجش</h3><p>زیبایی برای ما آغاز است؛ اثر واقعی مقصد است.</p></article></div></div></section><section class="team-band"><div class="container"><span>REDT / PEOPLE</span><h2>آدم‌های کنجکاو،<br>دقیق و بی‌قرار.</h2><p>تیم ما برای هر پروژه بر اساس مسئله چیده می‌شود؛ کوچک، متمرکز و بدون لایه‌های اضافه.</p><a class="btn btn--primary" href="<?=url('#contact')?>">شروع آشنایی ←</a></div></section>
+ <?php elseif($type==='portfolio'): ?>
+ <section class="market-section"><div class="container"><div class="case-grid"><?php $projects=[['fintech-v2.webp','نئوبانک نُوا','تجربه بانکی با ۳۸٪ تبدیل بیشتر','محصول دیجیتال'],['architecture-v2.webp','استودیو آوان','معماری که در فضای دیجیتال نفس می‌کشد','وب‌سایت'],['coffee-v2.webp','کافه رُست','هویتی گرم، ساده و به‌یادماندنی','برندینگ']];foreach($projects as $i=>$p): ?><a class="case-card <?= $i===0?'wide':'' ?>" href="<?=url('page.php?type=project&id='.($i+1))?>"><img src="<?=asset_url('assets/images/case-studies/'.$p[0])?>" alt="<?=e($p[1])?>"><span><?=e($p[3])?> / ۱۴۰۵</span><h2><?=e($p[2])?></h2><small><?=e($p[1])?> ↙</small></a><?php endforeach; ?></div></div></section>
+ <?php elseif($type==='project'): $projectCases=[
+  '1'=>['fintech-v2.webp','نئوبانک نُوا','تجربه بانکی که مسیر افتتاح حساب را ساده کرد','طراحی محصول','کاربران در فرایند طولانی ثبت‌نام و احراز هویت ریزش می‌کردند.','معماری مسیر، زبان رابط و سیستم کامپوننت‌ها از نو طراحی شد تا هر قدم واضح و قابل پیش‌بینی باشد.',['۳۸٪','رشد تکمیل ثبت‌نام'],['۲.۱×','افزایش تعامل']],
+  '2'=>['architecture-v2.webp','استودیو آوان','بازتعریف حضور دیجیتال یک استودیوی معماری','طراحی وب','کیفیت پروژه‌های آوان در سایت قبلی دیده نمی‌شد و یافتن اطلاعات برای کارفرما دشوار بود.','یک تجربه تصویری خلوت با روایت پروژه‌محور، صفحات سریع و مسیر تماس کوتاه طراحی شد.',['۵۲٪','رشد زمان حضور'],['۳۱٪','افزایش درخواست']],
+  '3'=>['coffee-v2.webp','کافه رُست','هویتی گرم، ساده و به‌یادماندنی','برندینگ','هویت قبلی میان شعب و بسته‌بندی‌ها یکپارچه نبود و تشخیص برند را سخت می‌کرد.','سیستم هویت منعطفی ساخته شد که از فضا تا بسته‌بندی و شبکه‌های اجتماعی یک لحن دارد.',['۴.۹','امتیاز تجربه برند'],['۶ هفته','تا اجرای کامل']],
+ ];$case=$projectCases[$id]??$projectCases['1']; ?>
+ <article class="project-case"><div class="container"><header><span class="market-index"><?=e($case[3])?> / CASE STUDY</span><h2><?=e($case[2])?></h2><p><?=e($case[1])?> · ۱۴۰۵</p></header><figure><img src="<?=asset_url('assets/images/case-studies/'.$case[0])?>" alt="<?=e($case[2])?>"></figure><div class="project-story"><section><span>01 / مسئله</span><h3>اول، مسئله درست را پیدا کردیم.</h3><p><?=e($case[4])?></p></section><section><span>02 / راهکار</span><h3>کمتر، روشن‌تر و قابل استفاده‌تر.</h3><p><?=e($case[5])?></p></section></div><div class="project-results"><div><strong><?=e($case[6][0])?></strong><span><?=e($case[6][1])?></span></div><div><strong><?=e($case[7][0])?></strong><span><?=e($case[7][1])?></span></div><a href="<?=url('#contact')?>">پروژه مشابه دارید؟<b>شروع گفتگو ↙</b></a></div></div></article>
+ <?php elseif($type==='compare'): ?>
+ <?php $compareItems=array_slice(array_values(array_filter($catalog['accounts'],fn($x)=>$x['active']??true)),0,4); ?><section class="market-section"><div class="container"><div class="compare-intro"><b>مقایسه اکانت‌های هوش مصنوعی و نرم‌افزار</b><p>قیمت، تحویل، ضمانت و امکانات کلیدی را کنار هم ببینید.</p></div><div class="compare-wrap"><table class="compare-table product-compare"><thead><tr><th>مشخصات</th><?php foreach($compareItems as $i=>$p):?><th class="<?=$i===0?'best':''?>"><?=e($p['title'])?><?=$i===0?'<span>محبوب‌ترین</span>':''?></th><?php endforeach;?></tr></thead><tbody><tr><td>دسته‌بندی</td><?php foreach($compareItems as $p):?><td><?=e($p['category'])?></td><?php endforeach;?></tr><tr><td>قیمت</td><?php foreach($compareItems as $p):?><td><strong><?=e($p['price'])?></strong></td><?php endforeach;?></tr><tr><td>تحویل</td><?php foreach($compareItems as $p):?><td><?=e($p['delivery'])?></td><?php endforeach;?></tr><tr><td>ضمانت</td><?php foreach($compareItems as $p):?><td><?=e($p['warranty'])?></td><?php endforeach;?></tr><?php for($f=0;$f<4;$f++):?><tr><td><?=$f===0?'امکانات اصلی':''?></td><?php foreach($compareItems as $p):?><td>✓ <?=e($p['features'][$f]??'—')?></td><?php endforeach;?></tr><?php endfor;?><tr><td></td><?php foreach($compareItems as $i=>$p):?><td class="<?=$i===0?'best':''?>"><a class="compare-buy" href="<?=url('page.php?type=product&id='.$p['id'])?>">مشاهده و خرید</a></td><?php endforeach;?></tr></tbody></table></div></div></section>
+ <?php elseif($type==='privacy'): ?><section class="reading"><div class="container reading-layout"><aside><span>امنیت REDT</span><a href="#data">اطلاعات</a><a href="#rights">حقوق شما</a></aside><div><h2 id="data">اطلاعات شما، امانت ماست.</h2><p class="lead">فقط اطلاعات لازم برای ارائه خدمت جمع‌آوری می‌شود و دسترسی‌ها بر اساس نیاز واقعی محدود خواهند بود.</p><h3>حفاظت فنی</h3><p>ارتباط امن HTTPS، کوکی‌های HttpOnly و SameSite، محافظت CSRF، محدودسازی درخواست و اعتبارسنجی سمت سرور در معماری در نظر گرفته شده‌اند.</p><h3 id="rights">حقوق شما</h3><p>می‌توانید درخواست مشاهده، اصلاح یا حذف اطلاعات حساب خود را برای تیم پشتیبانی ارسال کنید.</p></div></div></section>
+ <?php else: ?><section class="market-section"><div class="container empty-state"><b>404</b><h2>اینجا چیزی نیست.</h2><a class="btn btn--primary" href="<?=url()?>">بازگشت به خانه</a></div></section><?php endif; ?>
+ <section class="market-cta"><div class="container"><span>هنوز مطمئن نیستید؟</span><h2>بیایید انتخاب درست را<br><em>با هم پیدا کنیم.</em></h2><a href="<?=url('#contact')?>">گفت‌وگو با REDT <b>↙</b></a></div></section>
+</main><aside class="compare-drawer" hidden><div><span>مقایسه محصولات</span><b data-compare-count>۰ محصول انتخاب شده</b></div><div class="compare-chips"></div><button type="button" data-compare-open>مقایسه حالا ←</button></aside><div class="compare-modal" hidden><button class="compare-backdrop" data-compare-close aria-label="بستن"></button><section><button data-compare-close>×</button><span>مقایسه انتخاب شما</span><h2>تفاوت‌ها در یک نگاه</h2><div class="dynamic-compare"></div></section></div>
+<?php if(in_array($type,['product','course'],true) && $item): ?>
+<div class="purchase-modal" hidden role="dialog" aria-modal="true" aria-labelledby="purchase-title"><button class="purchase-backdrop" type="button" data-purchase-close aria-label="بستن"></button><section class="purchase-panel"><button class="purchase-close" type="button" data-purchase-close aria-label="بستن">×</button><span class="market-index">SECURE REQUEST / REDT</span><h2 id="purchase-title">ثبت سفارش <?=e($item['title'])?></h2><p>کارشناس REDT موجودی، قیمت نهایی و شرایط تحویل را بررسی می‌کند و سپس برای پرداخت امن با شما تماس می‌گیریم.</p><form action="<?=url('api/purchase.php')?>" method="post" data-purchase-form><input type="hidden" name="csrf" value="<?=e(csrf_token())?>"><input type="hidden" name="product_id" value="<?=e($item['id'])?>"><input type="hidden" name="plan" data-purchase-plan value=""><input class="hp" name="website" tabindex="-1" autocomplete="off"><div class="purchase-summary"><span><?=e($item['kind'])?></span><b><?=e($item['title'])?></b><strong data-purchase-price><?=e($item['price'])?> تومان</strong></div><div class="purchase-fields"><label>نام و نام خانوادگی<input name="name" required minlength="3" autocomplete="name" placeholder="مثلاً آرمان رضایی"></label><label>شماره موبایل<input name="phone" required inputmode="tel" dir="ltr" autocomplete="tel" placeholder="0912 000 0000"></label><?php if(($item['kind']??'')==='اکانت اورجینال'):?><label class="full">ایمیل حساب برای فعال‌سازی <small>اختیاری؛ رمز عبور را هرگز اینجا وارد نکنید.</small><input name="account" type="email" dir="ltr" autocomplete="email" placeholder="name@example.com"></label><?php endif;?><label class="full">توضیحات سفارش<textarea name="notes" rows="3" placeholder="اگر زمان تحویل، پلن یا نیاز خاصی دارید بنویسید..."></textarea></label></div><small class="purchase-error" role="alert"></small><button class="purchase-submit" type="submit">ثبت امن درخواست <i>←</i></button><small class="purchase-privacy">با ثبت درخواست هیچ پرداختی انجام نمی‌شود. رمز حساب یا اطلاعات بانکی را در توضیحات ننویسید.</small></form><div class="purchase-success" hidden><b>✓</b><h3>سفارش با موفقیت ثبت شد.</h3><p>کد پیگیری: <strong data-order-id></strong></p><span>کارشناس فروش برای ادامه فرایند با شما تماس می‌گیرد.</span><button type="button" data-purchase-close>متوجه شدم</button></div></section></div>
+<?php endif; ?>
+<div class="mini-cart" hidden><span>درخواست شما ثبت شد.</span><a href="<?=url('user/#invoices')?>">مشاهده حساب ←</a></div>
+<link rel="stylesheet" href="<?=asset_url('assets/css/marketplace.css')?>"><script src="<?=asset_url('assets/js/marketplace.js')?>" defer></script>
+<?php require __DIR__.'/includes/footer.php'; ?>

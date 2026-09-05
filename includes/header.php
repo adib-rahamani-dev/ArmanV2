@@ -6,6 +6,7 @@ $seoMeta = seo_meta($seo ?? (isset($pageTitle) ? ['title' => $pageTitle] : []));
 $requestedScript = realpath((string) ($_SERVER['SCRIPT_FILENAME'] ?? ''));
 $homeScript = realpath(dirname(__DIR__) . '/index.php');
 $isHome = $requestedScript !== false && $requestedScript === $homeScript;
+track_page_view();
 ?>
 <!doctype html>
 <html lang="fa-IR" dir="rtl" data-theme="light">
@@ -45,6 +46,8 @@ $isHome = $requestedScript !== false && $requestedScript === $homeScript;
     <script type="application/ld+json"><?= seo_json_ld($seoMeta) ?></script>
     <script>(function(){try{var t=localStorage.getItem('redt-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');document.documentElement.dataset.theme=t}catch(e){}})()</script>
     <link rel="stylesheet" href="<?= asset_url('assets/css/app.css') ?>">
+    <script>window.REDT_URLS={store:<?=json_encode(url('page.php?type=products'),JSON_UNESCAPED_SLASHES)?>,courses:<?=json_encode(url('page.php?type=courses'),JSON_UNESCAPED_SLASHES)?>,brandCourse:<?=json_encode(url('page.php?type=course&id=brand-master'),JSON_UNESCAPED_SLASHES)?>,webCourse:<?=json_encode(url('page.php?type=course&id=web-design'),JSON_UNESCAPED_SLASHES)?>};</script>
+    <script src="<?= asset_url('assets/js/storefront-routes.js') ?>" defer></script>
     <link rel="stylesheet" href="<?= asset_url('assets/css/fixes.css') ?>">
     <link rel="stylesheet" href="<?= asset_url('assets/css/v2.css') ?>">
     <link rel="stylesheet" href="<?= asset_url('assets/css/formal.css') ?>">
@@ -54,6 +57,7 @@ $isHome = $requestedScript !== false && $requestedScript === $homeScript;
     <link rel="stylesheet" href="<?= asset_url('assets/css/motion.css') ?>">
     <link rel="stylesheet" href="<?= asset_url('assets/css/prestige.css') ?>">
     <?php endif; ?>
+    <link rel="stylesheet" href="<?= asset_url('assets/css/levelup.css') ?>">
 </head>
 <body>
 <div class="page-progress" aria-hidden="true"><i></i></div>
@@ -69,6 +73,7 @@ $isHome = $requestedScript !== false && $requestedScript === $homeScript;
             </ul>
         </nav>
         <div class="header__actions">
+            <a class="icon-btn header-account" href="<?= url('user/') ?>" aria-label="حساب کاربری">◎</a>
             <button class="icon-btn theme-toggle" type="button" aria-label="تغییر پوسته">◐</button>
             <a class="btn btn--primary header__cta" href="<?= url('#contact') ?>">مشاوره رایگان</a>
             <button class="icon-btn menu-toggle" type="button" aria-label="بازکردن منو" aria-controls="mobile-menu" aria-expanded="false"><span></span><span></span></button>

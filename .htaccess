@@ -4,6 +4,13 @@ AddDefaultCharset UTF-8
 
 RewriteEngine On
 
+# Three-surface architecture. Point every domain to this same document root.
+# digital.* serves the digital shop and studio.* serves agency work.
+RewriteCond %{HTTP_HOST} ^digital\. [NC]
+RewriteRule ^$ digital/index.php [L]
+RewriteCond %{HTTP_HOST} ^studio\. [NC]
+RewriteRule ^$ studio/index.php [L]
+
 # Dynamic, environment-aware crawler directives.
 RewriteRule ^robots\.txt$ robots.php [L]
 

@@ -1,0 +1,2 @@
+/* Final shared polish layer: deliberately small and loaded last. */
+:where(a,button,input,select,textarea):focus-visible{outline:3px solid color-mix(in srgb,var(--red) 55%,transparent);outline-offset:3px}.header__inner{min-height:84px}.header__cta{box-shadow:0 10px 28px color-mix(in srgb,var(--red) 25%,transparent)}.logo{letter-spacing:-.06em}.logo span{color:var(--text)}.market-card,.offer-card,.package-grid article{isolation:isolate}.market-card[hidden],[hidden]{display:none!important}@media(max-width:760px){.header__inner{min-height:70px}.header__cta{box-shadow:none}}
