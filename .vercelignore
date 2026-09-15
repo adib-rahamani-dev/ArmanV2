@@ -1,0 +1,8 @@
+.git
+.agents
+skills-lock.json
+.env
+storage/**
+database/*.sqlite
+assets/images/generated/*.png
+*.log

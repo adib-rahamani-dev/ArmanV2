@@ -30,14 +30,19 @@ function seo_schema_graph(array $meta): array
     $organizationId = $base . '/#organization';
     $websiteId = $base . '/#website';
     $webpageId = rtrim((string) $meta['canonical'], '/') . '/#webpage';
-    $graph = [
-        [
+    $organization = [
             '@type' => 'Organization', '@id' => $organizationId, 'name' => APP_NAME,
             'alternateName' => SITE_NAME_FA, 'url' => $base . '/',
             'logo' => ['@type' => 'ImageObject', 'url' => absolute_url('assets/icons/logo.svg'), 'width' => 512, 'height' => 512],
-            'email' => 'hello@redt.ir', 'telephone' => '+98-21-8876-5432',
-            'address' => ['@type' => 'PostalAddress', 'addressLocality' => 'تهران', 'addressCountry' => 'IR'],
-        ],
+        ];
+    $contactEmail = trim((string) (getenv('CONTACT_EMAIL') ?: ''));
+    $contactPhone = trim((string) (getenv('CONTACT_PHONE') ?: ''));
+    $contactCity = trim((string) (getenv('CONTACT_CITY') ?: ''));
+    if ($contactEmail !== '') $organization['email'] = $contactEmail;
+    if ($contactPhone !== '') $organization['telephone'] = $contactPhone;
+    if ($contactCity !== '') $organization['address'] = ['@type' => 'PostalAddress', 'addressLocality' => $contactCity, 'addressCountry' => 'IR'];
+    $graph = [
+        $organization,
         [
             '@type' => 'WebSite', '@id' => $websiteId, 'url' => $base . '/', 'name' => APP_NAME,
             'alternateName' => SITE_NAME_FA, 'inLanguage' => 'fa-IR', 'publisher' => ['@id' => $organizationId],

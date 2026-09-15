@@ -7,6 +7,24 @@
   const menu=$('.surface-menu');
   const mobileMenu=$('.surface-mobile-menu');
   const toast=$('.surface-toast');
+  const themeButtons=$$('.surface-theme');
+  const progressBar=$('.surface-progress i');
+  const themeMeta=$('meta[name="theme-color"]');
+
+  const applyTheme=theme=>{
+    root.dataset.theme=theme;
+    const light=theme==='light';
+    themeButtons.forEach(button=>{
+      button.setAttribute('aria-label',light?'تغییر به حالت تیره':'تغییر به حالت روشن');
+      button.setAttribute('title',light?'حالت تیره':'حالت روشن');
+      button.setAttribute('aria-pressed',String(light));
+    });
+    themeMeta?.setAttribute('content',light?'#F4F2ED':'#0B0C0F');
+  };
+  try{
+    const savedTheme=localStorage.getItem('redt-theme')||localStorage.getItem('redt-surface-theme');
+    applyTheme(savedTheme==='light'||savedTheme==='dark'?savedTheme:(root.dataset.theme||'dark'));
+  }catch{}
 
   const notify=(message,error=false)=>{
     if(!toast)return;
@@ -19,23 +37,39 @@
   const closeMenu=()=>{
     mobileMenu?.classList.remove('open');
     menu?.setAttribute('aria-expanded','false');
+    menu?.setAttribute('aria-label','بازکردن منو');
     mobileMenu?.setAttribute('aria-hidden','true');
   };
 
-  $('.surface-theme')?.addEventListener('click',()=>{
+  themeButtons.forEach(button=>button.addEventListener('click',()=>{
     const theme=root.dataset.theme==='dark'?'light':'dark';
-    root.dataset.theme=theme;
-    try{localStorage.setItem('redt-surface-theme',theme);}catch{}
-  });
+    applyTheme(theme);
+    try{localStorage.setItem('redt-theme',theme);}catch{}
+    window.dataLayer=window.dataLayer||[];
+    window.dataLayer.push({event:'theme_change',theme});
+  }));
   menu?.addEventListener('click',()=>{
     const open=!mobileMenu?.classList.contains('open');
     mobileMenu?.classList.toggle('open',open);
     menu.setAttribute('aria-expanded',String(open));
+    menu.setAttribute('aria-label',open?'بستن منو':'بازکردن منو');
     mobileMenu?.setAttribute('aria-hidden',String(!open));
   });
   $$('.surface-mobile-menu a').forEach(link=>link.addEventListener('click',closeMenu));
   addEventListener('resize',()=>{if(innerWidth>900)closeMenu();},{passive:true});
-  addEventListener('scroll',()=>header?.classList.toggle('is-compact',scrollY>45),{passive:true});
+  let progressFrame=0;
+  const updateScrollState=()=>{
+    header?.classList.toggle('is-compact',scrollY>45);
+    if(progressBar){
+      const max=document.documentElement.scrollHeight-innerHeight;
+      progressBar.style.width=`${max>0?Math.min(100,Math.max(0,scrollY/max*100)):0}%`;
+    }
+    progressFrame=0;
+  };
+  addEventListener('scroll',()=>{
+    if(!progressFrame)progressFrame=requestAnimationFrame(updateScrollState);
+  },{passive:true});
+  updateScrollState();
 
   $$('[data-service-pick]').forEach(link=>link.addEventListener('click',()=>{
     const input=$(`input[name="service"][value="${CSS.escape(link.dataset.servicePick)}"]`);
@@ -49,6 +83,20 @@
       $$('.app-dock a[href^="#"]').forEach(link=>link.classList.toggle('active',link.getAttribute('href')===`#${entry.target.id}`));
     }),{rootMargin:'-30% 0px -60%'});
     sections.forEach(section=>observer.observe(section));
+
+    if(!matchMedia('(prefers-reduced-motion:reduce)').matches){
+      const revealItems=$$('main > section, .offer-card, .case-card, .digital-card, .steps-grid article, .process-cards article');
+      const revealObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        }
+      }),{rootMargin:'0px 0px -8%'});
+      revealItems.forEach(item=>{
+        item.classList.add('surface-reveal');
+        revealObserver.observe(item);
+      });
+    }
   }
   if(matchMedia('(pointer:coarse)').matches&&!matchMedia('(prefers-reduced-motion:reduce)').matches){
     $$('.app-dock a,.surface-btn,.digital-card button').forEach(item=>item.addEventListener('click',()=>navigator.vibrate?.(7)));
@@ -93,6 +141,8 @@
     });
     const empty=$('.digital-empty');
     if(empty)empty.hidden=count>0;
+    const countLabel=$('[data-digital-count]');
+    if(countLabel)countLabel.textContent=`${count.toLocaleString('fa-IR')} سرویس قابل بررسی`;
   };
   searchInput?.addEventListener('input',event=>{
     digitalQuery=event.target.value.trim().toLocaleLowerCase('fa');
@@ -139,7 +189,11 @@
     document.body.classList.add('sheet-open');
     $('[name="name"]',purchaseForm)?.focus();
   }));
-  addEventListener('keydown',event=>{if(event.key==='Escape'&&!sheet?.hidden)closeSheet();});
+  addEventListener('keydown',event=>{
+    if(event.key!=='Escape')return;
+    if(!sheet?.hidden)closeSheet();
+    else if(mobileMenu?.classList.contains('open'))closeMenu();
+  });
   purchaseForm?.addEventListener('submit',async event=>{
     event.preventDefault();
     const message=$('.form-message',purchaseForm);
@@ -153,6 +207,8 @@
       purchaseForm.hidden=true;
       const success=$('.sheet-success');success.hidden=false;
       $('[data-sheet-code]').textContent=data.order_id;
+      const verificationLink=$('[data-sheet-verify]');
+      if(verificationLink&&data.verification_url)verificationLink.href=data.verification_url;
       purchaseForm.reset();
       notify('درخواست سرویس با موفقیت ثبت شد.');
     }catch(reason){

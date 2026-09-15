@@ -33,4 +33,13 @@ $catalog = [
   ['id'=>'creative-process','category'=>'فرایند','title'=>'فرایند خلاقه‌ای که تیم را سریع‌تر و خروجی را بهتر می‌کند','time'=>'۱۱ دقیقه','art'=>'signal'],
  ],
 ];
+$productImages = [
+ 'products'=>['ui-system'=>'ui-system.jpg','social-pro'=>'social-pro.jpg','brand-kit'=>'brand-kit.jpg'],
+ 'accounts'=>['chatgpt-plus'=>'chatgpt-plus.jpg','gemini-advanced'=>'gemini-advanced.jpg','midjourney'=>'midjourney.jpg','creative-cloud'=>'creative-cloud.jpg','microsoft-365'=>'microsoft-365.jpg'],
+ 'courses'=>['brand-master'=>'brand-master.jpg','web-design'=>'web-design.jpg'],
+];
+foreach ($productImages as $group => $images) foreach ($catalog[$group] as &$item) {
+    if (isset($images[$item['id']])) $item['image'] = 'assets/images/products/' . $images[$item['id']];
+}
+unset($item);
 return apply_catalog_overrides($catalog);

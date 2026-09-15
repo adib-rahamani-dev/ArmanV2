@@ -2,31 +2,29 @@
 declare(strict_types=1);
 require __DIR__ . '/../config/config.php';
 $surface='studio';
-$pageTitle='REDT Studio | طراحی سایت، برند و تبلیغات';
-$pageDescription='استودیوی طراحی و رشد REDT؛ طراحی سایت، تجربه محصول، هویت برند و کمپین‌های تبلیغاتی در یک مسیر یکپارچه.';
+$pageTitle='REDT Studio | طراحی سایت و تبلیغات برای جذب مشتری';
+$pageDescription='طراحی سایت، لندینگ و کمپین تبلیغاتی با پیام روشن، تجربه کاربری ساده و مسیر مشخص برای جذب مشتری.';
 require __DIR__ . '/../includes/surface-header.php';
 ?>
 <main>
 <section class="studio-hero" id="start">
     <div class="surface-shell studio-hero__grid">
-        <div class="hero-copy"><span class="section-kicker">REDT / INDEPENDENT CREATIVE STUDIO</span><h1>برندهایی می‌سازیم<br>که <em>واضح‌تر</em><br>انتخاب می‌شوند.</h1><p>استراتژی، طراحی و رشد را به یک تجربهٔ منسجم تبدیل می‌کنیم؛ از اولین برخورد کاربر تا لحظه‌ای که تصمیم می‌گیرد.</p><div class="hero-actions"><a class="surface-btn primary" href="#contact">پروژه‌ام را شروع می‌کنم <i>↙</i></a><a class="surface-btn ghost" href="#work">دیدن پروژه‌ها</a></div></div>
-        <figure class="studio-hero__media"><img src="<?=asset_url('assets/images/case-studies/architecture-v2.webp')?>" alt="طراحی تجربه وب توسط استودیوی REDT" width="1400" height="900" fetchpriority="high"><figcaption><b>آوان / معماری</b><span>STRATEGY · WEB DESIGN · 2026</span></figcaption></figure>
-        <aside class="studio-manifesto"><span>OUR APPROACH</span><p>زیبایی وقتی ارزشمند است که فهمیدن، اعتمادکردن و اقدام‌کردن را ساده‌تر کند.</p><div><i></i> پذیرش محدود پروژه</div></aside>
+        <div class="hero-copy"><span class="section-kicker">طراحی سایت و تبلیغات</span><h1>سایتی می‌سازیم<br>که کاربر را<br><em>به مشتری تبدیل کند.</em></h1><p>پیام، ظاهر و مسیر اقدام را کنار هم می‌چینیم تا مخاطب سریع‌تر اعتماد کند و راحت‌تر با شما تماس بگیرد.</p><div class="hero-actions"><a class="surface-btn primary" href="#contact">شروع پروژه <i>←</i></a><a class="surface-btn ghost" href="#work">ساختار پروژه‌ها</a></div></div>
+        <div class="studio-hero__media studio-signal" role="img" aria-label="سیگنال استودیو؛ حرکت از راهبرد به تولید"><span>STRATEGY</span><span>CREATIVE</span><span>PRODUCTION</span><span>IMPACT</span><i></i><b>REDT / STUDIO</b></div>
+        <aside class="studio-manifesto"><span>روش ما</span><p>قبل از طراحی مشخص می‌کنیم مشتری شما چه می‌خواهد، چرا باید اعتماد کند و چطور باید اقدام کند.</p><div><i></i> ظرفیت همکاری پس از بررسی درخواست مشخص می‌شود</div></aside>
     </div>
     <div class="surface-shell studio-capabilities"><span>WEB & PRODUCT</span><span>BRAND SYSTEM</span><span>CAMPAIGN & GROWTH</span><span>CONTENT DIRECTION</span></div>
 </section>
 
-<section class="surface-section expertise-section" id="services"><div class="surface-shell"><div class="section-head"><div><span class="section-kicker">WHAT WE SOLVE</span><h2>سه تخصص؛<br><em>یک تصویر منسجم.</em></h2></div><p>هر همکاری حول یک مسئلهٔ واقعی شکل می‌گیرد، نه فهرستی از خروجی‌های پراکنده.</p></div><div class="expertise-list">
+<section class="surface-section expertise-section" id="services"><div class="surface-shell"><div class="section-head"><div><span class="section-kicker">چه کمکی می‌کنیم؟</span><h2>سه مسیر روشن<br><em>برای رشد کسب‌وکار.</em></h2></div><p>از میان ده‌ها اصطلاح و خدمت پراکنده، فقط روی کاری تمرکز می‌کنیم که الان برای شما نتیجه می‌سازد.</p></div><div class="expertise-list">
     <article><span>01</span><div><small>DIGITAL EXPERIENCE</small><h3>طراحی سایت و محصول</h3><p>ساختار، محتوا و رابط را کنار هم می‌چینیم تا تجربه سریع، قابل فهم و آمادهٔ رشد باشد.</p></div><ul><li>لندینگ و سایت شرکتی</li><li>فروشگاه و پنل کاربری</li><li>UX / UI و Design System</li></ul><i>↙</i></article>
     <article><span>02</span><div><small>GROWTH SYSTEM</small><h3>تبلیغات و کمپین</h3><p>از پیام و لندینگ تا انتخاب رسانه و گزارش؛ یک کمپین یکپارچه با هدف روشن.</p></div><ul><li>کمپین شبکه‌های اجتماعی</li><li>اینفلوئنسر مارکتینگ</li><li>استراتژی محتوا و رشد</li></ul><i>↙</i></article>
     <article><span>03</span><div><small>BRAND CLARITY</small><h3>هویت و روایت برند</h3><p>سیستمی منعطف برای اینکه برند در هر نقطهٔ تماس یک صدا و یک تصویر داشته باشد.</p></div><ul><li>جایگاه و استراتژی برند</li><li>هویت بصری و راهنما</li><li>لحن و سیستم محتوایی</li></ul><i>↙</i></article>
 </div></div></section>
 
-<section class="surface-section work-section" id="work"><div class="surface-shell"><div class="section-head"><div><span class="section-kicker">SELECTED PROJECTS</span><h2>تصمیم‌های دقیق،<br><em>نتیجه‌های دیدنی.</em></h2></div><p>هر پروژه با یک سؤال شروع شده و به سیستمی رسیده که کاربر واقعاً می‌تواند با آن ارتباط بگیرد.</p></div><div class="work-grid">
-    <article class="case-card case-wide"><a href="<?=url('page.php?type=project&id=nova')?>"><img src="<?=asset_url('assets/images/case-studies/fintech-v2.webp')?>" alt="طراحی محصول نئوبانک نوا"><div><span>محصول دیجیتال / فین‌تک</span><h3>یک تجربهٔ بانکی<br>آرام‌تر برای نُوا</h3><small>UX · UI · DESIGN SYSTEM</small></div><i>↙</i></a></article>
-    <article class="case-card"><a href="<?=url('page.php?type=project&id=avan')?>"><img src="<?=asset_url('assets/images/case-studies/architecture-v2.webp')?>" alt="طراحی وب‌سایت استودیو آوان"><div><span>وب‌سایت / معماری</span><h3>آوان؛ فضا در قاب دیجیتال</h3><small>STRATEGY · WEB DESIGN</small></div><i>↙</i></a></article>
-    <article class="case-card"><a href="<?=url('page.php?type=project&id=rost')?>"><img src="<?=asset_url('assets/images/case-studies/coffee-v2.webp')?>" alt="هویت بصری کافه رست"><div><span>هویت / بسته‌بندی</span><h3>رُست؛ هویتی گرم و ملموس</h3><small>BRAND · PACKAGING</small></div><i>↙</i></a></article>
-</div></div></section>
+<section class="surface-section work-section" id="work"><div class="surface-shell"><div class="section-head"><div><span class="section-kicker">VERIFIED WORK ONLY</span><h2>پروژه‌ها،<br><em>با روایت کامل.</em></h2></div><p>نمونه‌کار فقط پس از تأیید نام کارفرما، خروجی‌ها، نتایج و اجازه انتشار در این بخش قرار می‌گیرد.</p></div>
+    <div class="work-placeholder"><span>وضعیت / در انتظار محتوای واقعی</span><div><h3>ساختار مطالعه موردی آماده است.</h3><p>هر پروژه با زمینه کسب‌وکار، چالش، مخاطب، بینش راهبردی، جهت خلاق، اجرا، خروجی نهایی، نتیجه قابل‌اندازه‌گیری و عوامل پروژه منتشر خواهد شد. تا آن زمان هیچ مشتری، نتیجه یا بازخورد ساختگی نمایش داده نمی‌شود.</p><div class="case-template"><span>01 / زمینه و چالش</span><span>02 / راهبرد و اجرا</span><span>03 / خروجی و نتیجه مستند</span></div></div></div>
+</div></section>
 
 <section class="surface-section process-section" id="process"><div class="surface-shell process-layout"><div class="process-intro"><span class="section-kicker">HOW WE WORK</span><h2>شفاف از ابتدا<br>تا تحویل.</h2><p>در هر مرحله می‌دانید چه چیزی، چرا و برای چه زمانی ساخته می‌شود.</p><a href="#contact">گفت‌وگوی اولیه <i>↓</i></a></div><div class="process-list"><article><span>01</span><div><h3>کشف و هم‌راستایی</h3><p>مسئله، مخاطب، هدف و محدودیت‌ها را به یک تعریف مشترک می‌رسانیم.</p></div></article><article><span>02</span><div><h3>مسیر و نمونهٔ اولیه</h3><p>قبل از اجرای کامل، جهت اصلی را ملموس و قابل ارزیابی می‌کنیم.</p></div></article><article><span>03</span><div><h3>اجرا، تحویل و رشد</h3><p>مرحله‌ای اجرا می‌کنیم، بازخورد می‌گیریم و سیستم قابل توسعه تحویل می‌دهیم.</p></div></article></div></div></section>
 

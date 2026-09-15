@@ -9,6 +9,7 @@ function surface_url(string $surface = 'main', string $path = ''): string {
     $envKey = match ($surface) {
         'digital' => 'DIGITAL_BASE_URL',
         'studio' => 'STUDIO_BASE_URL',
+        'arman' => 'ARMAN_BASE_URL',
         default => 'APP_BASE_URL',
     };
     $configured = trim((string) (getenv($envKey) ?: ''));
@@ -16,6 +17,7 @@ function surface_url(string $surface = 'main', string $path = ''): string {
     $prefix = match ($surface) {
         'digital' => 'digital/',
         'studio' => 'studio/',
+        'arman' => 'arman/',
         default => '',
     };
     return url($prefix . ltrim($path, '/'));
@@ -54,8 +56,26 @@ function asset_url(string $path): string {
     $version = is_file($file) ? (string) filemtime($file) : '1';
     return url($relative) . '?v=' . rawurlencode($version);
 }
-function csrf_token(): string { if(empty($_SESSION['csrf'])) $_SESSION['csrf']=bin2hex(random_bytes(32)); return $_SESSION['csrf']; }
-function csrf_valid(?string $token): bool { return is_string($token)&&hash_equals($_SESSION['csrf']??'',$token); }
+function csrf_token(): string {
+    if (empty($_SESSION['csrf'])) {
+        $cookieToken = (string) ($_COOKIE['redt_csrf'] ?? '');
+        $_SESSION['csrf'] = preg_match('/^[a-f0-9]{64}$/', $cookieToken) === 1 ? $cookieToken : bin2hex(random_bytes(32));
+    }
+    if (!headers_sent() && !hash_equals((string) ($_COOKIE['redt_csrf'] ?? ''), (string) $_SESSION['csrf'])) {
+        setcookie('redt_csrf', (string) $_SESSION['csrf'], [
+            'expires'=>time() + 7200,
+            'path'=>'/',
+            'secure'=>is_https(),
+            'httponly'=>true,
+            'samesite'=>'Lax',
+        ]);
+    }
+    return (string) $_SESSION['csrf'];
+}
+function csrf_valid(?string $token): bool {
+    $expected = (string) ($_SESSION['csrf'] ?? $_COOKIE['redt_csrf'] ?? '');
+    return is_string($token) && $expected !== '' && hash_equals($expected, $token);
+}
 function is_post(): bool { return ($_SERVER['REQUEST_METHOD']??'GET')==='POST'; }
 function json_response(array $data,int $status=200): never { http_response_code($status); header('Content-Type: application/json; charset=utf-8'); echo json_encode($data,JSON_UNESCAPED_UNICODE); exit; }
 function track_page_view(): void {
@@ -160,6 +180,12 @@ function read_json_lines(string $relative): array {
 
 function apply_catalog_overrides(array $catalog): array {
     $overrides = storage_json('catalog-overrides.json', []);
+    try {
+        $statement = db()->query('SELECT group_name, product_id, active FROM product_overrides');
+        foreach ($statement->fetchAll() as $row) $overrides[$row['group_name'] . ':' . $row['product_id']] = (bool) $row['active'];
+    } catch (Throwable) {
+        // The static catalog remains usable while a production database is being connected.
+    }
     foreach ($catalog as $group => &$items) {
         if (!is_array($items)) continue;
         foreach ($items as &$item) {
@@ -174,7 +200,26 @@ function apply_catalog_overrides(array $catalog): array {
 }
 
 function admin_is_authenticated(): bool {
-    return !empty($_SESSION['admin_authenticated']) && is_int($_SESSION['admin_authenticated']) && $_SESSION['admin_authenticated'] > time() - 43200;
+    if (!empty($_SESSION['admin_authenticated']) && is_int($_SESSION['admin_authenticated']) && $_SESSION['admin_authenticated'] > time() - 43200) return true;
+    $cookie = (string) ($_COOKIE['redt_admin'] ?? '');
+    if ($cookie === '' || !str_contains($cookie, '.')) return false;
+    [$payload, $signature] = explode('.', $cookie, 2);
+    $secret = (string) (getenv('AUTH_SECRET') ?: getenv('ADMIN_PASSWORD') ?: '');
+    if ($secret === '' || !hash_equals(hash_hmac('sha256', $payload, $secret), $signature)) return false;
+    $decoded = json_decode((string) base64_decode(strtr($payload, '-_', '+/'), true), true);
+    return is_array($decoded) && ($decoded['exp'] ?? 0) > time() && hash_equals((string) (getenv('ADMIN_USERNAME') ?: 'admin'), (string) ($decoded['sub'] ?? ''));
+}
+
+function admin_sign_in(string $username): void {
+    $_SESSION['admin_authenticated'] = time();
+    $payload = rtrim(strtr(base64_encode(json_encode(['sub'=>$username, 'exp'=>time() + 43200], JSON_UNESCAPED_SLASHES)), '+/', '-_'), '=');
+    $secret = (string) (getenv('AUTH_SECRET') ?: getenv('ADMIN_PASSWORD') ?: '');
+    if ($secret !== '' && !headers_sent()) setcookie('redt_admin', $payload . '.' . hash_hmac('sha256', $payload, $secret), ['expires'=>time()+43200, 'path'=>'/', 'secure'=>is_https(), 'httponly'=>true, 'samesite'=>'Strict']);
+}
+
+function admin_sign_out(): void {
+    unset($_SESSION['admin_authenticated']);
+    if (!headers_sent()) setcookie('redt_admin', '', ['expires'=>time()-3600, 'path'=>'/', 'secure'=>is_https(), 'httponly'=>true, 'samesite'=>'Strict']);
 }
 
 function admin_credentials_valid(string $username, string $password): bool {
@@ -188,6 +233,18 @@ function admin_credentials_valid(string $username, string $password): bool {
 }
 
 function admin_order_rows(): array {
+    try {
+        $sql = "SELECT o.id AS _key, o.tracking_code AS order_id, o.source AS _source, o.product_title AS _title,
+                       o.price_snapshot AS _amount, o.status AS _status, o.payment_status, o.identity_status,
+                       o.created_at AS date, c.full_name AS name, c.phone, c.email,
+                       v.id AS verification_id, v.status AS verification_status
+                FROM orders o JOIN customers c ON c.id=o.customer_id
+                LEFT JOIN verifications v ON v.order_id=o.id ORDER BY o.created_at DESC";
+        $rows = db()->query($sql)->fetchAll();
+        if (is_array($rows)) return $rows;
+    } catch (Throwable) {
+        // Keep legacy local records visible if database setup is incomplete.
+    }
     $states = storage_json('admin/order-status.json', []);
     $rows = [];
     foreach (read_json_lines('messages/orders.log') as $row) {

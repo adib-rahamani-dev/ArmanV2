@@ -3,15 +3,16 @@ declare(strict_types=1);
 const APP_NAME = 'REDT';
 if (!defined('APP_URL')) {
     $configuredPath = getenv('APP_PATH');
-    define('APP_URL', $configuredPath === false ? '/ArmanV2' : '/' . trim((string) $configuredPath, '/'));
+    $defaultPath = getenv('VERCEL') === '1' ? '' : '/ArmanV2';
+    define('APP_URL', $configuredPath === false ? $defaultPath : '/' . trim((string) $configuredPath, '/'));
 }
 const SITE_NAME_FA = 'گروه قرمز';
 const SITE_DESCRIPTION = 'آژانس برندینگ، طراحی سایت و تولید محتوای REDT؛ از استراتژی و هویت بصری تا طراحی تجربه دیجیتال و رشد کسب‌وکار.';
 const SITE_LOCALE = 'fa_IR';
 date_default_timezone_set('Asia/Tehran');
-const STORAGE_PATH = __DIR__ . '/../storage';
+define('STORAGE_PATH', getenv('VERCEL') === '1' ? sys_get_temp_dir() . '/redt-storage' : __DIR__ . '/../storage');
 if (!defined('APP_ENV')) {
-    define('APP_ENV', getenv('APP_ENV') ?: 'development');
+    define('APP_ENV', getenv('APP_ENV') ?: (getenv('VERCEL') === '1' ? 'production' : 'development'));
 }
 if (session_status() !== PHP_SESSION_ACTIVE) {
     $sessionPath = STORAGE_PATH . '/sessions';
@@ -34,5 +35,8 @@ if (!headers_sent()) {
     header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(self)');
     header('Cross-Origin-Opener-Policy: same-origin');
 }
+require_once __DIR__ . '/../includes/database.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/private-storage.php';
 require_once __DIR__ . '/../includes/seo.php';
+csrf_token();
