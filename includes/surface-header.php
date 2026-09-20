@@ -44,15 +44,16 @@ track_page_view();
     <meta name="description" content="<?=e($seoMeta['description'])?>">
     <meta name="robots" content="<?=e($seoMeta['robots'])?>">
     <link rel="canonical" href="<?=e($seoMeta['canonical'])?>">
-    <meta name="theme-color" content="#0B0C0F">
+    <meta name="theme-color" content="#FFF8F6">
     <meta name="color-scheme" content="light dark">
     <link rel="icon" href="<?=asset_url('assets/icons/favicon.svg')?>" type="image/svg+xml">
     <link rel="manifest" href="<?=url('site.webmanifest')?>">
     <link rel="preload" href="<?=url('assets/fonts/Vazirmatn.woff2')?>" as="font" type="font/woff2" crossorigin>
-    <script>(function(){var d=document.documentElement;d.className=d.className.replace('no-js','js');try{var t=localStorage.getItem('redt-theme');d.dataset.theme=t==='light'||t==='dark'?t:(matchMedia('(prefers-color-scheme:light)').matches?'light':'dark')}catch(e){d.dataset.theme='dark'}})()</script>
+    <script>(function(){var d=document.documentElement;d.className=d.className.replace('no-js','js');try{var t=localStorage.getItem('redt-theme');d.dataset.theme=t==='light'||t==='dark'?t:'light'}catch(e){d.dataset.theme='light'}})()</script>
     <link rel="stylesheet" href="<?=asset_url('assets/css/surfaces.css')?>">
     <?php if(in_array($surface,['studio','digital'],true)):?><link rel="stylesheet" href="<?=asset_url('assets/css/conversion-v2.css')?>"><?php endif;?>
     <link rel="stylesheet" href="<?=asset_url('assets/css/neo-system.css')?>">
+    <link rel="stylesheet" href="<?=asset_url('assets/css/nabi.css')?>">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="fa_IR">
     <meta property="og:title" content="<?=e($seoMeta['title'])?>">
