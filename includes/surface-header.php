@@ -9,7 +9,7 @@ $surfaceNav = match ($surface) {
     'digital' => ['محصولات'=>'#catalog','نحوه خرید'=>'#how','پیگیری سفارش'=>'#tracking','پشتیبانی'=>'#support'],
     'studio' => ['خدمات'=>'#services','پروژه‌ها'=>'#work','رویکرد'=>'#process'],
     'arman' => ['خانه'=>'#start','رویدادها'=>'#events','نوشته‌ها'=>'#articles','درباره آرمان'=>'#about'],
-    default => ['راهکارها'=>'#paths','چرا REDT'=>'#why','روند همکاری'=>'#process','سؤالات متداول'=>'#faq'],
+    default => ['خدمات'=>'#paths','نمونه‌کار'=>'#work','روند همکاری'=>'#process','سؤالات متداول'=>'#faq'],
 };
 $ctaTarget = match ($surface) {
     'digital' => '#catalog',
@@ -44,7 +44,7 @@ track_page_view();
     <meta name="description" content="<?=e($seoMeta['description'])?>">
     <meta name="robots" content="<?=e($seoMeta['robots'])?>">
     <link rel="canonical" href="<?=e($seoMeta['canonical'])?>">
-    <meta name="theme-color" content="#FFF8F6">
+    <meta name="theme-color" content="#F7F6F2">
     <meta name="color-scheme" content="light dark">
     <link rel="icon" href="<?=asset_url('assets/icons/favicon.svg')?>" type="image/svg+xml">
     <link rel="manifest" href="<?=url('site.webmanifest')?>">
